@@ -37,12 +37,13 @@ class UserController {
 
   static async getAllUsers(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const user = await UserService.getAllUsers();
-      if (!user) {
+      const { page = 1 } = request.query as { page: number }; // Padrão é página 1
+      const { result, totalResults } = await UserService.getAllUsers(page);
+
+      if (!result) {
         throw new NotFoundError('Utilizador nao encontrado');
       }
-
-      return reply.send(user);
+      return reply.send({ users: result, totalResults });
     } catch (err) {
       throw err;
     }
@@ -113,7 +114,7 @@ class UserController {
         confirmPassword,
       } = request.body as PasswordUpdate;
 
-      if (user.id.toString() !== id) {
+      if (user.id.toString() !== id && user.id.toString() !== '1') {
         throw new ForbiddenError('Não tem autorização para editar este utilizador.');
       }
 

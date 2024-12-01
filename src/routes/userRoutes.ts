@@ -13,12 +13,14 @@ export async function userRoutes(fastify: FastifyInstance/*  options: FastifyPlu
     return UserController.createUserController(request, reply);
   });
 
-  fastify.get('/find-one-user', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/find-one-user', { preHandler: authMiddleware }, async (request: FastifyRequest, reply: FastifyReply) => {
     return UserController.getUser(request, reply);
   });
 
   fastify.get('/find-users', { preHandler: authMiddleware }, async (request: FastifyRequest, reply: FastifyReply) => {
-    return UserController.getAllUsers(request, reply);
+    const { users, totalResults } = await UserController.getAllUsers(request, reply);
+    reply.header('X-Total-Count', totalResults);
+    reply.send({ users });
   });
 
   fastify.put('/update-password/:id', { preHandler: authMiddleware }, async (request: FastifyRequest, reply: FastifyReply) => {

@@ -12,14 +12,16 @@ declare module 'fastify' {
 
 export async function authMiddleware(request: FastifyRequest, reply: FastifyReply) {
   try {
-    let { token } = request.headers;
+    const { authorization } = request.headers;
 
-    if (!token) {
-      throw new ValidationError('Não autorizado falta token');
+    if (!authorization) {
+      throw new ValidationError('Não autorizado: falta o token');
     }
 
-    if (Array.isArray(token)) {
-      [token] = token;
+    const [type, token] = authorization.split(' ');
+
+    if (type !== 'Bearer' || !token) {
+      throw new ValidationError('Formato de token inválido');
     }
 
     try {

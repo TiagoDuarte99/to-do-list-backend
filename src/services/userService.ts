@@ -3,11 +3,6 @@ import { NotFoundError } from '../errors/notFoundError.ts';
 import db from '../../db.ts';
 import { User, UserUpdate } from '../models/users.ts';
 
-/* interface UpdatedData {
-  userName?: string;
-
-} */
-
 class UserService {
   static async getUser(filter = {}) {
     try {
@@ -30,8 +25,11 @@ class UserService {
   }
   // TODO Modar os erros para os meus erros
 
-  static async getAllUsers() {
+  static async getAllUsers(page: number) {
     try {
+      const limit = 10;
+      const offset = (page - 1) * limit;
+
       const result = await db('users')
         .select([
           'id',
@@ -40,8 +38,14 @@ class UserService {
           'active',
           'created_at',
           'updated_at',
-        ]);
-      return result;
+        ])
+        .limit(limit)
+        .offset(offset);
+
+      const totalCount = await db('users').count('id').first();
+      const totalResults = totalCount ? parseInt(totalCount.count as string, 10) : 0;
+
+      return { result, totalResults };
     } catch (err) {
       throw err;
     }
@@ -104,11 +108,8 @@ class UserService {
           'active',
           'created_at',
           'updated_at',
-        ])
-        .then(([user]: User[]) => {
-          return user;
-        });
-      return { data: userUpdate[0] };
+        ]);
+      return userUpdate[0];
     } catch (err) {
       throw err;
     }
