@@ -1,4 +1,3 @@
-import { ValidationError } from '../errors/validationError.ts';
 import { NotFoundError } from '../errors/notFoundError.ts';
 
 import db from '../../db.ts';
@@ -29,6 +28,7 @@ class UserService {
       throw err;
     }
   }
+  // TODO Modar os erros para os meus erros
 
   static async getAllUsers() {
     try {
@@ -70,17 +70,23 @@ class UserService {
         name,
       };
 
-      const userInBd = await this.getUser({ userName: user.email });
+      const [createdUser] = await db('users')
+        .insert(user)
+        .returning(['id', 'email', 'name']);
 
-      if (userInBd) {
-        throw new ValidationError(
-          'Já existe um utilizador com esse username',
-        );
-      }
+      return createdUser;
+    } catch (err) {
+      throw err;
+    }
+  }
 
-      const [userId] = await db('users').insert(user).returning('id');
+  static async updatePassword(id: string, updatedData: UserUpdate): Promise<boolean> {
+    try {
+      const result = await db('users')
+        .where({ id })
+        .update(updatedData);
 
-      return { data: { id: userId, ...user } };
+      return result > 0;
     } catch (err) {
       throw err;
     }
@@ -88,23 +94,6 @@ class UserService {
 
   static async updateUser(id: string, updatedData: UserUpdate) {
     try {
-      const getUser = await this.getUser({ id });
-
-      if (!getUser) {
-        throw new NotFoundError('Utilizador nao encontrado');
-      }
-
-      if (Object.prototype.hasOwnProperty.call(updatedData, 'email')) {
-        const { email } = updatedData;
-        const userEmail = await this.getUser({ email });
-
-        if (userEmail) {
-          throw new ValidationError(
-            'Esse email já está em uso.',
-          );
-        }
-      }
-
       const userUpdate = await db('users')
         .where({ id })
         .update(updatedData)
@@ -127,12 +116,6 @@ class UserService {
 
   static async deteleUser({ id }) {
     try {
-      const user = await this.getUser({ id });
-
-      if (!user) {
-        throw new NotFoundError('Utilizador nao encontrado');
-      }
-
       const userDeleted = await db('users')
         .where({ id })
         .del();

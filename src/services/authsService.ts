@@ -1,12 +1,10 @@
-import * as bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ValidationError } from '../errors/validationError.ts';
 import { UserService } from './userService.ts';
-import { AuthController } from '../controllers/authsController.ts';
 import { UserAuths } from '../models/users.ts';
+import { comparePassword } from '../utils/index.ts';
 
-
-const expiresIn = '24h';
+const expiresIn = Math.floor(Date.now() / 1000) + (24 * 60 * 60);
 class AuthService {
   static async login({ email, password }: UserAuths) {
     try {
@@ -16,10 +14,10 @@ class AuthService {
         throw new ValidationError('Utilizador não encontrado');
       }
 
-/*       const isPasswordValid = bcrypt.compareSync(password, user.password);
+      const isPasswordValid = comparePassword(password, user.password);
       if (!isPasswordValid) {
         throw new ValidationError('Erro na autenticação');
-      } */
+      }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: userPassword, ...userWithoutPassword } = user;

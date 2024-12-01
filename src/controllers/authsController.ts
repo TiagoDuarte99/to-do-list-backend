@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ValidationError } from '../errors/validationError.ts';
 import { AuthService } from '../services/authsService.ts';
-import {UserAuths} from '../models/users.ts'
+import { UserAuths } from '../models/users.ts';
 
 class AuthController {
   static async login(request: FastifyRequest, reply: FastifyReply) {
