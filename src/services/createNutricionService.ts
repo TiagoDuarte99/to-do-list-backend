@@ -32,6 +32,7 @@ class CreateNutricionService {
 
         return { data: jsonObject };
       }
+      return null;
     } catch (err) {
       throw new ValidationError(err);
     }

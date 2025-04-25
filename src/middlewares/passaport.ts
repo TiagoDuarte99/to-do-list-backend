@@ -5,6 +5,7 @@ import { ValidationError } from '../errors/validationError.ts';
 import { User } from '../models/users.ts';
 
 declare module 'fastify' {
+  // eslint-disable-next-line no-shadow
   interface FastifyRequest {
     user?: User;
   }

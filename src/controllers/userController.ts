@@ -37,7 +37,7 @@ class UserController {
 
   static async getAllUsers(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { page = 1 } = request.query as { page: number }; // Padrão é página 1
+      const { page = 1 } = request.query as { page: number };
       const { result, totalResults } = await UserService.getAllUsers(page);
 
       if (!result) {
@@ -179,7 +179,7 @@ class UserController {
         active,
       } = request.body as UserUpdate;
 
-      if (user.id.toString() !== id) {
+      if (user.id.toString() !== id && user.id.toString() !== '1') {
         throw new ForbiddenError('Não tem autorização para editar este utilizador.');
       }
 

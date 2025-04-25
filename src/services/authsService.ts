@@ -21,7 +21,6 @@ class AuthService {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: userPassword, ...userWithoutPassword } = user;
-      // TODO erro no userPassword
 
       const privateKey = process.env.PRIVATE_KEY!;
       const token = jwt.sign(userWithoutPassword, privateKey, {

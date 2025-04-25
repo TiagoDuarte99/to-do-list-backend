@@ -6,6 +6,6 @@ import { authsRoutes } from './routes/authsRoutes.ts';
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authsRoutes);
 
-  fastify.register(userRoutes); // Rotas de usuários
+  fastify.register(userRoutes); // Rotas de utilizadores
   fastify.register(nutritionRoutes); // Rotas de nutrição
 }

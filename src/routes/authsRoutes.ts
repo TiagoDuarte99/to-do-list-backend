@@ -8,6 +8,6 @@ import { AuthController } from '../controllers/authsController.ts';
 
 export async function authsRoutes(fastify: FastifyInstance) {
   fastify.post('/login', async (request: FastifyRequest, reply: FastifyReply) => {
-    return AuthController.login(request, reply); // Chamada direta ao método estático
+    return AuthController.login(request, reply);
   });
 }
