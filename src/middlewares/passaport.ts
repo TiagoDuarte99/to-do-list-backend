@@ -11,7 +11,10 @@ declare module 'fastify' {
   }
 }
 
-export async function authMiddleware(request: FastifyRequest, reply: FastifyReply) {
+export async function authMiddleware(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
   try {
     const { authorization } = request.headers;
 
@@ -26,10 +29,10 @@ export async function authMiddleware(request: FastifyRequest, reply: FastifyRepl
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.PRIVATE_KEY!);
+      const decoded = jwt.verify(token, process.env.PRIVATE_KEY!) as User;
       request.user = decoded;
     } catch (err) {
-      throw new ValidationError(`Token expirado ${err}`);
+      throw new ValidationError(`Token expirado: ${err?.message || err}`);
     }
     return { ok: true };
   } catch (err) {

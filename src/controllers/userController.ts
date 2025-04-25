@@ -1,7 +1,4 @@
-import {
-  FastifyRequest,
-  FastifyReply,
-} from 'fastify';
+import { FastifyRequest, FastifyReply } from 'fastify';
 import { ValidationError } from '../errors/validationError.ts';
 import { ForbiddenError } from '../errors/forbiddenError.ts';
 import { NotFoundError } from '../errors/notFoundError.ts';
@@ -13,6 +10,7 @@ import {
   User,
   PasswordUpdate,
 } from '../models/users.ts';
+
 import {
   isValidPassword,
   getPasswdHash,
@@ -49,14 +47,13 @@ class UserController {
     }
   }
 
-  static async createUserController(request: FastifyRequest, reply: FastifyReply) {
+  static async createUserController(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
     try {
-      const {
-        password,
-        name,
-        email,
-        confirmPassword,
-      } = request.body as UserCreate;
+      const { password, name, email, confirmPassword } =
+        request.body as UserCreate;
 
       if (!password || !name || !email || !confirmPassword) {
         throw new ValidationError(
@@ -71,17 +68,19 @@ class UserController {
       const userInBd = await UserService.getUser({ email });
 
       if (userInBd) {
-        throw new ValidationError(
-          'Já existe um utilizador com esse email',
-        );
+        throw new ValidationError('Já existe um utilizador com esse email');
       }
 
       if (!isValidPassword(password)) {
-        throw new ValidationError('A password deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um dígito e um caractere especial');
+        throw new ValidationError(
+          'A password deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um dígito e um caractere especial',
+        );
       }
 
       if (password !== confirmPassword) {
-        throw new ValidationError('A password não corresponde à confirmação de password.');
+        throw new ValidationError(
+          'A password não corresponde à confirmação de password.',
+        );
       }
 
       const passwordHash = getPasswdHash(password);
@@ -98,8 +97,6 @@ class UserController {
     }
   }
 
-  /* UpdatePassword fazer logica para isto */
-
   static async updatePasswordController(
     request: FastifyRequest,
     reply: FastifyReply,
@@ -108,22 +105,25 @@ class UserController {
     try {
       const { id } = request.params as { id: string };
 
-      const {
-        password,
-        newPassword,
-        confirmPassword,
-      } = request.body as PasswordUpdate;
+      const { password, newPassword, confirmPassword } =
+        request.body as PasswordUpdate;
 
       if (user.id.toString() !== id && user.id.toString() !== '1') {
-        throw new ForbiddenError('Não tem autorização para editar este utilizador.');
+        throw new ForbiddenError(
+          'Não tem autorização para editar este utilizador.',
+        );
       }
 
       if (!password || !newPassword || !confirmPassword) {
-        throw new ValidationError('Todos os campos são de preencimento obrigatório.');
+        throw new ValidationError(
+          'Todos os campos são de preencimento obrigatório.',
+        );
       }
 
       if (newPassword !== confirmPassword) {
-        throw new ValidationError('A senha não corresponde à confirmação de senha.');
+        throw new ValidationError(
+          'A senha não corresponde à confirmação de senha.',
+        );
       }
 
       const getUser = await UserService.findUserLogin({ id });
@@ -140,20 +140,29 @@ class UserController {
       let passwordHash: string | undefined;
       if (newPassword) {
         if (!isValidPassword(newPassword)) {
-          throw new ValidationError('A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um dígito e um caractere especial');
+          throw new ValidationError(
+            'A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, uma minúscula, um dígito e um caractere especial',
+          );
         }
         passwordHash = getPasswdHash(newPassword);
       }
 
       const updatedData = Object.fromEntries(
-        Object.entries({ password: passwordHash }).filter(([, value]) => value !== undefined),
+        Object.entries({ password: passwordHash }).filter(
+          ([, value]) => value !== undefined,
+        ),
       );
 
       if (Object.keys(updatedData).length === 0) {
-        throw new ValidationError('Nenhum campo válido foi enviado para atualização.');
+        throw new ValidationError(
+          'Nenhum campo válido foi enviado para atualização.',
+        );
       }
 
-      const updateSuccessful = await UserService.updatePassword(id, updatedData);
+      const updateSuccessful = await UserService.updatePassword(
+        id,
+        updatedData,
+      );
 
       if (!updateSuccessful) {
         throw new ValidationError('Erro ao atualizar a senha.');
@@ -173,22 +182,24 @@ class UserController {
     try {
       const { id } = request.params as { id: string };
 
-      const {
-        name,
-        email,
-        active,
-      } = request.body as UserUpdate;
+      const { name, email, active } = request.body as UserUpdate;
 
       if (user.id.toString() !== id && user.id.toString() !== '1') {
-        throw new ForbiddenError('Não tem autorização para editar este utilizador.');
+        throw new ForbiddenError(
+          'Não tem autorização para editar este utilizador.',
+        );
       }
 
       const updatedData = Object.fromEntries(
-        Object.entries({ name, email, active }).filter(([, value]) => value !== undefined),
+        Object.entries({ name, email, active }).filter(
+          ([, value]) => value !== undefined,
+        ),
       );
 
       if (Object.keys(updatedData).length === 0) {
-        throw new ValidationError('Nenhum campo válido foi enviado para atualização.');
+        throw new ValidationError(
+          'Nenhum campo válido foi enviado para atualização.',
+        );
       }
 
       const getUser = await UserService.getUser({ id });
@@ -201,9 +212,7 @@ class UserController {
         const userEmail = await UserService.getUser({ email });
 
         if (userEmail) {
-          throw new ValidationError(
-            'Esse email já está em uso.',
-          );
+          throw new ValidationError('Esse email já está em uso.');
         }
       }
 
@@ -222,9 +231,11 @@ class UserController {
   ) {
     try {
       const { id } = request.params as { id: string };
-
+      console.log(user.id.toString(), id);
       if (user.id.toString() !== id) {
-        throw new ForbiddenError('Não tem autorização para eliminar este utilizador.');
+        throw new ForbiddenError(
+          'Não tem autorização para eliminar este utilizador.',
+        );
       }
 
       const userDeleted = await UserService.deteleUser({ id });

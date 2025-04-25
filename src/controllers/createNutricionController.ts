@@ -1,35 +1,24 @@
-import {
-  FastifyRequest,
-  FastifyReply,
-} from 'fastify';
+import { FastifyRequest, FastifyReply } from 'fastify';
 import { ValidationError } from '../errors/validationError.ts';
 
 import { CreateNutricionService } from '../services/createNutricionService.ts';
-
-export interface DataProps {
-  name: string,
-  weight: string,
-  height: string,
-  age: string,
-  gender: string,
-  objective: string,
-  level: string
-}
+import { Nutrition } from '../models/nutrition.ts';
 
 class CreateNutricionController {
-  static async handle(request: FastifyRequest, reply: FastifyReply) {
+  static async createNutrition(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const {
-        name,
-        weight,
-        height,
-        age,
-        gender,
-        objective,
-        level,
-      } = request.body as DataProps;
+      const { name, weight, height, age, gender, objective, level } =
+        request.body as Nutrition;
 
-      if (!name || !weight || !height || !age || !gender || !objective || !level) {
+      if (
+        !name ||
+        !weight ||
+        !height ||
+        !age ||
+        !gender ||
+        !objective ||
+        !level
+      ) {
         throw new ValidationError(
           'Todos os campos são um atributo obrigatório',
         );

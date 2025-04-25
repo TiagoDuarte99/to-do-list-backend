@@ -1,11 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { DataProps } from '../controllers/createNutricionController.ts';
+import { Nutrition, NutritionResponse } from '../models/nutrition.ts';
 import { ValidationError } from '../errors/validationError.ts';
 
 class CreateNutricionService {
   static async execute({
     name, weight, height, age, gender, objective, level,
-  }: DataProps) {
+  }: Nutrition) {
     try {
       const genAi = new GoogleGenerativeAI(process.env.API_KEY!);
       const model = genAi.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -25,12 +25,28 @@ class CreateNutricionService {
       /* console.log(JSON.stringify(response, null, 2)) */
       if (response.response && response.response.candidates) {
         const jsonText = response.response.candidates[0]?.content.parts[0].text as string;
-
+      
+        // Limpar o texto e transformá-lo em um JSON válido
         const jsonString = jsonText.replace(/```\w*\n/g, '').replace(/\n```/g, '').trim();
-
         const jsonObject = JSON.parse(jsonString);
 
-        return { data: jsonObject };
+        // Mapear para a interface NutritionResponse
+        const nutritionData: NutritionResponse = {
+          nome: jsonObject.nome,
+          sexo: jsonObject.sexo,
+          idade: jsonObject.idade,
+          altura: jsonObject.altura,
+          peso: jsonObject.peso,
+          objetivo: jsonObject.objetivo,
+          refeicoes: jsonObject.refeicoes.map((refeicao: any) => ({
+            horario: refeicao.horario,
+            nome: refeicao.nome,
+            alimentos: refeicao.alimentos,
+          })),
+          suplementos: jsonObject.suplementos,
+        };
+      
+        return { nutritionData };
       }
       return null;
     } catch (err) {

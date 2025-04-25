@@ -8,14 +8,7 @@ class UserService {
     try {
       const result = await db('users')
         .where(filter)
-        .select([
-          'id',
-          'email',
-          'name',
-          'active',
-          'created_at',
-          'updated_at',
-        ])
+        .select(['id', 'email', 'name', 'active', 'created_at', 'updated_at'])
         .first();
 
       return result as User | null;
@@ -31,19 +24,15 @@ class UserService {
       const offset = (page - 1) * limit;
 
       const result = await db('users')
-        .select([
-          'id',
-          'name',
-          'email',
-          'active',
-          'created_at',
-          'updated_at',
-        ])
+        .select(['id', 'name', 'email', 'active', 'created_at', 'updated_at'])
         .limit(limit)
-        .offset(offset);
+        .offset(offset)
+        .orderBy('id');
 
       const totalCount = await db('users').count('id').first();
-      const totalResults = totalCount ? parseInt(totalCount.count as string, 10) : 0;
+      const totalResults = totalCount
+        ? parseInt(totalCount.count as string, 10)
+        : 0;
 
       return { result, totalResults };
     } catch (err) {
@@ -64,9 +53,7 @@ class UserService {
     }
   }
 
-  static async createUser({
-    email, passwordHash, name,
-  }) {
+  static async createUser({ email, passwordHash, name }) {
     try {
       const user = {
         email,
@@ -84,11 +71,12 @@ class UserService {
     }
   }
 
-  static async updatePassword(id: string, updatedData: UserUpdate): Promise<boolean> {
+  static async updatePassword(
+    id: string,
+    updatedData: UserUpdate,
+  ): Promise<boolean> {
     try {
-      const result = await db('users')
-        .where({ id })
-        .update(updatedData);
+      const result = await db('users').where({ id }).update(updatedData);
 
       return result > 0;
     } catch (err) {
@@ -119,7 +107,7 @@ class UserService {
     try {
       const userDeleted = await db('users')
         .where({ id })
-        .del();
+        .update({ active: false });
 
       return userDeleted;
     } catch (err) {
